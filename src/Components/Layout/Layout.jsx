@@ -2,9 +2,12 @@ import { FileOutlined, PieChartOutlined, UserOutlined, DesktopOutlined, TeamOutl
 import { Breadcrumb, Layout, Menu, theme } from 'antd';
 import { useState } from 'react';
 import { Logo } from 'Components/Logo';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 import { Space, Table, Tag } from 'antd';
 import { Header } from 'Components/Header';
+import MenuItem from 'antd/es/menu/MenuItem';
+import { styled } from 'styled-components';
+
 const { Column, ColumnGroup } = Table;
 const data = [
   {
@@ -42,6 +45,13 @@ function getItem(label, key, icon, children,) {
     label,
   };
 }
+// const SiderStyled = styled(Sider)`
+  
+//     .active{
+//       background-color: blue;
+//     }
+  
+// `
 const items = [
   getItem(<NavLink to='/'>Dashboard</NavLink>, 'sup1', <DashboardOutlined />, [
     getItem(<NavLink to='/'>'User'</NavLink>, "1.1",),
@@ -50,12 +60,12 @@ const items = [
     getItem(<NavLink to='/'>Chart</NavLink>, "1.4",),
   ]),
   getItem(<NavLink to='/user'>User</NavLink>, '2', <UserOutlined />,),
-  getItem(<NavLink to='/'>Customer</NavLink>, '3', <CustomerServiceOutlined />,),
-  getItem(<NavLink to='/'>Product</NavLink>, '4', <GiftOutlined />,),
+  getItem(<NavLink to='/customer'>Customer</NavLink>, '3', <CustomerServiceOutlined />,),
+  getItem(<NavLink to='/product'>Product</NavLink>, '4', <GiftOutlined />,),
   getItem(<NavLink to='/'>Order</NavLink>, '5', <OrderedListOutlined />,),
   getItem(<NavLink to='/'>Coupon</NavLink>, '6', <GiftTwoTone />,)
 ];
-const PrimaryLayout = ({ children }) => {
+const PrimaryLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer },
@@ -69,8 +79,10 @@ const PrimaryLayout = ({ children }) => {
       <Sider collapsible collapsed={collapsed} onCollapse={(value) => setCollapsed(value)}>
         <div className="demo-logo-vertical" />
         <Logo></Logo>
-        <Menu theme="dark" defaultSelectedKeys={['2']} mode="inline" items={items} > 
-          
+        <Menu theme="dark" defaultSelectedKeys={''} mode="inline"  > 
+          {items.map((item)=>{
+           return <Menu.Item key={item.key}defaultSelectedKeys={item.key}>{item.label} </Menu.Item>
+          })}
 
           </Menu>
       </Sider>
@@ -78,7 +90,8 @@ const PrimaryLayout = ({ children }) => {
         <Header>
 
         </Header>
-        {children}
+        {/* {children} */}
+        <Outlet/>
    
         <Footer
           style={{

@@ -1,39 +1,45 @@
 import Layout from "antd/es/layout/layout"
 import { PrimaryLayout } from "Components/Layout";
-import { Breadcrumb, Menu, Popconfirm, theme } from 'antd';
+import { FileOutlined, PieChartOutlined, UserOutlined, DesktopOutlined, TeamOutlined, DashboardOutlined, CustomerServiceOutlined, GiftOutlined, OrderedListOutlined, GiftTwoTone } from '@ant-design/icons';
+import { Breadcrumb, Menu, theme } from 'antd';
 import { Button, Modal, Form, Input } from 'antd';
 import { useState } from 'react';
 import { Space, Table, Tag } from 'antd';
 import React from 'react';
-import { useDispatch, useSelector } from "react-redux";
 const { Column, ColumnGroup } = Table;
 
-// const data = [
-//     {
-//         key: '1',
-//         firstName: 'John',
-//         lastName: 'Brown',
-//         age: 32,
-//         address: 'New York No. 1 Lake Park',
-//         tags: ['nice', 'developer'],
-//     },
-//     {
-//         key: '2',
-//         firstName: 'Jim',
-//         lastName: 'Green',
-//         age: 42,
-//         address: 'London No. 1 Lake Park',
-//         tags: ['loser'],
-//     },
-//     {
-//         key: '3',
-//         firstName: 'Joe',
-//         lastName: 'Black',
-//         age: 32,
-//         address: 'Sydney No. 1 Lake Park',
-//         tags: ['cool', 'teacher'],
-//     },
-// ];
+const data = [
+    {
+        key: '1',
+        pname: 'PC1',
+        description: '23"',
+        category: 'pc',
+        price: 25000000,
+        status:0,
+    },
+    {
+        key: '2',
+        pname: 'PC2',
+        description: '23"',
+        category: 'pc',
+        price: 25000000,
+        status:0,
+    },   {
+        key: '3',
+        pname: 'PC3',
+        description: '23"',
+        category: 'pc',
+        price: 25000000,
+        status:0,
+    },   {
+        key: '4',
+        pname: 'PC4',
+        description: '23"',
+        category: 'pc',
+        price: 25000000,
+        status:0,
+    },
+];
 
 const { Content, Footer, Sider } = Layout;
 function getItem(label, key, icon, children) {
@@ -45,24 +51,27 @@ function getItem(label, key, icon, children) {
     };
 }
 
+const Product = () => {
 
-const User = () => {
-    const usersStore = useSelector((state) => state.users);
-    const dispatch = useDispatch();
-    React.useEffect(() => {
-        dispatch.users.fetchUsers();
-    }, [])
-
+    const [dataTable, setDataTable] = useState(data);
+    const addUser=(user)=>{
+        console.log('----------------------')
+        const newData = dataTable.concat([{
+            key: Math.floor(Math.random() * 10000) + 1,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            age: user.age,
+            address: user.address,
+            tags: ["cool", "teacher"],
+          }]);
+          console.log(newData)
+          setDataTable(newData);
+    }
     const SubmitButton = ({ form }) => {
         const [submittable, setSubmittable] = React.useState(false);
-
+    
         // Watch all values
         const values = Form.useWatch([], form);
-
-        const handleSubmit = () => {
-            addUser(values);
-        }
-
         React.useEffect(() => {
             form
                 .validateFields({
@@ -71,7 +80,7 @@ const User = () => {
                 .then(
                     () => {
                         setSubmittable(true);
-
+                      
                     },
                     () => {
                         setSubmittable(false);
@@ -79,38 +88,13 @@ const User = () => {
                 );
         }, [values]);
         return (
-            <Button type="primary" htmlType="submit" disabled={!submittable} onClick={handleSubmit}>
+            <Button type="primary" htmlType="submit" disabled={!submittable} >
                 Submit
             </Button>
         );
     };
     //data
-
-
-    const addUser = (values) => {
-        console.log('----------------------')
-        console.log(values)
-        const newData = [...usersStore.listUser, {
-            id: Math.floor(Math.random() * 10000) + 1,
-            name: values.name,
-            username: values.username,
-            email: values.email,
-            address: values.address,
-            tags: ["cool", "teacher"],
-        }];
-        console.log(newData)
-        dispatch.users.setListUser(newData);
-    }
-    const handleDelete =(record)=>{
-        console.log('key:'+record.id)
-        const newData = usersStore.listUser.filter((item)=>item.id != record.id);
-        dispatch.users.setListUser(newData);
-    }
-    const editHandle=(record)=>{
-        const item = usersStore.listUser.find((item)=>item.id == record.id);
-        
-    }
-      
+    
     //modal
     const [isModalOpen, setIsModalOpen] = useState(false);
     const showModal = () => {
@@ -122,21 +106,11 @@ const User = () => {
     const handleCancel = () => {
         setIsModalOpen(false);
     };
-    const [isModalOpen1, setIsModalOpen1] = useState(false);
-    const showModal1 = () => {
-        setIsModalOpen1(true);
-    };
-    const handleOk1 = () => {
-        setIsModalOpen1(false);
-    };
-    const handleCancel1 = () => {
-        setIsModalOpen1(false);
-    };
     //form
     const [form] = Form.useForm();
 
     return (
-        // <PrimaryLayout>
+        <PrimaryLayout>
             <Content
                 style={{
                     margin: '0 16px',
@@ -154,17 +128,19 @@ const User = () => {
                     style={{
                         padding: 24,
                         minHeight: 360,
+                        // background: colorBgContainer,
                     }}
                 >
                     <>
                         <Button type="primary" onClick={showModal}>
                             Open Modal
                         </Button>
-                        <Modal title="Add user" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} footer={null}>
-                            <Form form={form} name="validateOnly" layout="vertical" autoComplete="off" >
+                        <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                            {/* modal */}
+                            <Form form={form} name="validateOnly" layout="vertical" autoComplete="off" onSubmit={addUser}>
                                 <Form.Item
-                                    name="name"
-                                    label="Name"
+                                    name="firstName"
+                                    label="First name"
                                     rules={[
                                         {
                                             required: true,
@@ -174,8 +150,8 @@ const User = () => {
                                     <Input />
                                 </Form.Item>
                                 <Form.Item
-                                    name="username"
-                                    label="Username"
+                                    name="lastName"
+                                    label="Last Name"
                                     rules={[
                                         {
                                             required: true,
@@ -185,8 +161,8 @@ const User = () => {
                                     <Input />
                                 </Form.Item>
                                 <Form.Item
-                                    name="email"
-                                    label="Email"
+                                    name="age"
+                                    label="Age"
                                     rules={[
                                         {
                                             required: true,
@@ -208,35 +184,36 @@ const User = () => {
                                 </Form.Item>
                                 <Form.Item>
                                     <Space>
-                                        <SubmitButton form={form} />
+                                        {/* <SubmitButton form={form} /> */}
+                                        <Button htmlType="submit" >Submit</Button>
                                         <Button htmlType="reset">Reset</Button>
                                     </Space>
                                 </Form.Item>
-
+                               
                             </Form>
 
                         </Modal>
                     </>
-                    <Table dataSource={usersStore.listUser}>
+                    <Table dataSource={dataTable}>
 
-                        <Column title="Name" dataIndex="name" key="name" sorter={{
-                            compare: (a, b) => a.name > b.name
+                        <Column title="Product Name" dataIndex="pname" key="name" sorter={{
+                            compare: (a, b) => a.pname > b.pname
                         }} />
-                        <Column title="Username" dataIndex="username" key="username" />
+                        <Column title="Description" dataIndex="description" key="description" />
 
-                        <Column title="Email" dataIndex="email" key="email" />
-                        <Column title="Address" dataIndex="address" key="address" sorter={{
-                            compare: (a, b) => a.address > b.address
+                        <Column title="Category" dataIndex="category" key="category" />
+                        <Column title="Price" dataIndex="price" key="price" sorter={{
+                            compare: (a, b) => a.price > b.price
                         }} />
                         <Column
-                            title="Tags"
-                            dataIndex="tags"
-                            key="tags"
+                            title="Status"
+                            dataIndex="status"
+                            key="status"
                             // render={(tags) => (
                             //     <>
                             //         {tags.map((tag) => (
-                            //             <Tag color="blue" key={tag}>
-                            //                 {tag}
+                            //             <Tag color="blue" key={status}>
+                            //                 {status}
                             //             </Tag>
                             //         ))}
                             //     </>
@@ -248,18 +225,14 @@ const User = () => {
                             render={(_, record) => (
                                 <Space size="middle">
                                     <a>Edit</a>
-                                    <Popconfirm title="Sure to delete???" onConfirm={()=>{handleDelete(record)}}>
-                                    <a on>Delete</a>
-                                    </Popconfirm>
+                                    <a>Delete</a>
                                 </Space>
-                                
                             )}
                         />
-                       
                     </Table>
                 </div>
             </Content>
-        // </PrimaryLayout>
+        </PrimaryLayout>
     )
 }
-export { User }
+export { Product }

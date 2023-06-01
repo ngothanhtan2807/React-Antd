@@ -28,11 +28,17 @@
 export const users = {
     state: {
         listUser:[],
+        selectedUser: {},
     },
     reducers:{
         setListUser(state, listUser){
             return {
                 ...state, listUser
+            }
+        },
+        setSelectedUser(state, selectedUser){
+            return {
+                ...state, selectedUser
             }
         }
     },

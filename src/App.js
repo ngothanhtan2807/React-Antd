@@ -1,5 +1,6 @@
 import { PrimaryLayout } from "Components/Layout";
 import { Customer } from "Containers/Customers";
+import DashBoard from "Containers/Dashboard";
 import { Product } from "Containers/Product";
 import { User } from "Containers/User";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -11,7 +12,8 @@ function App() {
         
           <Routes>
             <Route exact element={<PrimaryLayout/>}>
-
+            
+            <Route path='/' element={<DashBoard />}></Route>
             <Route path='/user' element={<User />}></Route>
             <Route path='/customer' element={<Customer />}></Route>
             <Route path='/product' element={<Product />}></Route>

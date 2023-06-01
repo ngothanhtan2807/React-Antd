@@ -110,7 +110,6 @@ const Product = () => {
     const [form] = Form.useForm();
 
     return (
-        <PrimaryLayout>
             <Content
                 style={{
                     margin: '0 16px',
@@ -232,7 +231,6 @@ const Product = () => {
                     </Table>
                 </div>
             </Content>
-        </PrimaryLayout>
     )
 }
 export { Product }

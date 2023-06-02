@@ -1,66 +1,42 @@
 import Layout from "antd/es/layout/layout"
 import { PrimaryLayout } from "Components/Layout";
-import { FileOutlined, PieChartOutlined, UserOutlined, DesktopOutlined, TeamOutlined, DashboardOutlined, CustomerServiceOutlined, GiftOutlined, OrderedListOutlined, GiftTwoTone } from '@ant-design/icons';
-import { Breadcrumb, Menu, theme } from 'antd';
+import { Breadcrumb, Menu, Popconfirm } from 'antd';
 import { Button, Modal, Form, Input } from 'antd';
 import { useState } from 'react';
-import { Space, Table, Tag } from 'antd';
+import { Space, Table } from 'antd';
 import React from 'react';
+import { useDispatch, useSelector } from "react-redux";
+// import store from "store";
 const { Column, ColumnGroup } = Table;
 
-const data = [
-    {
-        key: '1',
-        cname: 'Customer1',
-        email: 'cus1@email.com',
-        total: 25000000,
-        address:'hcm',
-        status:1,
-    },
-    {
-        key: '2',
-        cname: 'Customer2',
-        email: 'cus2@email.com',
-        total: 25000000,address:'hcm',
-        status:1,
-    }, {
-        key: '3',
-        cname: 'Customer3',
-        email: 'cus1@email.com',
-        total: 25000000,address:'hcm',
-        status:1,
-    }, {
-        key: '4',
-        cname: 'Customer4',
-        email: 'cus4@email.com',
-        total: 25000000,address:'hcm',
-        status:1,
-    },
-];
-
 const { Content, Footer, Sider } = Layout;
+function getItem(label, key, icon, children) {
+    return {
+        key,
+        icon,
+        children,
+        label,
+    };
+}
 
 
 const Customer = () => {
+    const usersStore = useSelector((state) => state.users);
+    const dispatch = useDispatch();
+    React.useEffect(() => {
+        dispatch.users.fetchUsers();
+    }, [])
 
-    const [dataTable, setDataTable] = useState(data);
-    const addUser=(user)=>{
-        console.log('----------------------')
-        const newData = dataTable.concat([{
-            key: Math.floor(Math.random() * 10000) + 1,
-            cname: user.cname,
-            total: user.total,
-            address: user.address,
-            status: 1,
-          }]);
-          console.log(newData)
-          setDataTable(newData);
-    }
     const SubmitButton = ({ form }) => {
         const [submittable, setSubmittable] = React.useState(false);
-    
+
         // Watch all values
         const values = Form.useWatch([], form);
+
+        const handleSubmit = () => {
+            addUser(values);
+        }
+
         React.useEffect(() => {
             form
                 .validateFields({
@@ -69,7 +45,7 @@ const Customer = () => {
                 .then(
                     () => {
                         setSubmittable(true);
-                      
+
                     },
                     () => {
                         setSubmittable(false);
@@ -77,16 +53,107 @@ const Customer = () => {
                 );
         }, [values]);
         return (
-            <Button type="primary" htmlType="submit" disabled={!submittable} >
+            <Button type="primary" htmlType="submit" disabled={!submittable} onClick={handleSubmit}>
                 Submit
             </Button>
         );
     };
     //data
-    
+    const SaveButton = ({ form }) => {
+        const [submittable1, setSubmittable1] = React.useState(false);
+
+        const values = Form.useWatch([], form);
+        const handleEdit = () => {
+
+            // const values = Form.useWatch([], formEdit);
+            // const user = usersStore.selectedUser;
+            editUser(usersStore.selectedUser, values)
+            // console.log(user);
+        }
+
+        React.useEffect(() => {
+            form
+                .validateFields({
+                    validateOnly1: true,
+                })
+                .then(
+                    () => {
+                        setSubmittable1(true);
+
+                    },
+                    () => {
+                        setSubmittable1(false);
+                    },
+                );
+        }, [values]);
+        return (
+            <Button type="primary" htmlType="submit" disabled={!submittable1} onClick={handleEdit}>
+                Save
+            </Button>
+        );
+    };
+
+    const addUser = (values) => {
+        console.log('----------------------')
+        console.log(values)
+        const newData = [...usersStore.listUser, {
+            id: Math.floor(Math.random() * 10000) + 1,
+            name: values.name,
+            username: values.username,
+            email: values.email,
+            address: values.address,
+            tags: ["cool", "teacher"],
+        }];
+        console.log(newData)
+        dispatch.users.setListUser(newData);
+    }
+    const handleDelete = (record) => {
+        console.log('key:' + record.id)
+        const newData = usersStore.listUser.filter((item) => item.id !== record.id);
+        dispatch.users.setListUser(newData);
+    }
+    // const handleEdit=(record)=>{
+    //     // const values = Form.useWatch([], formEdit);
+    //     const user = usersStore.listUser.find((item)=>item.id === record.id);
+    //     editUser(user, values)
+    //     console.log(user);
+    // }
+    const editUser = (user, value) => {
+      
+        console.log("user:")
+        console.log(user)
+        // console.log(value)
+        const index = usersStore.listUser.findIndex((item)=>
+            user.id === item.id
+        );
+        console.log("index"+index);
+       
+        const newUser = {
+            id: user.id,
+            name: value.name,
+            username: value.username,
+            email: value.email,
+            address: value.address,
+          
+        };
+        // const newData = [...newDataAf,newUser];
+        console.log("new user")
+        console.log(newUser)
+        const newData = usersStore.listUser;
+        // const editData = newData.splice(index, 1, user, newUser);
+
+        newData[index]=newUser;
+        const copy = newData.map(item=>item);
+        console.log("newdata")
+        console.log(copy)
+        dispatch.users.setListUser(copy);
+        dispatch.users.setSelectedUser({});
+    }
+
     //modal
     const [isModalOpen, setIsModalOpen] = useState(false);
     const showModal = () => {
+       
         setIsModalOpen(true);
     };
     const handleOk = () => {
@@ -95,132 +162,212 @@ const Customer = () => {
     const handleCancel = () => {
         setIsModalOpen(false);
     };
+
+
+    //
+
+    const [isModalOpen1, setIsModalOpen1] = useState(false);
+    const showModal1 = (record) => {
+//         form.setFieldValue({
+//             name:'',
+//             username:'',
+//             email:'',
+//             address:'',
+//             ...record,
+
+// })
+        dispatch.users.setSelectedUser(record);
+        setIsModalOpen1(true);
+
+        console.log(record)
+    
+   
+    };
+
+    const handleOk1 = () => {
+        setIsModalOpen1(false);
+    };
+    const handleCancel1 = () => {
+        setIsModalOpen1(false);
+    };
     //form
     const [form] = Form.useForm();
-
+    const [formEdit] = Form.useForm();
     return (
         // <PrimaryLayout>
-            <Content
+        <Content
+            style={{
+                margin: '0 16px',
+            }}
+        >
+            <Breadcrumb
                 style={{
-                    margin: '0 16px',
+                    margin: '16px 0',
                 }}
             >
-                <Breadcrumb
-                    style={{
-                        margin: '16px 0',
-                    }}
-                >
-                    <Breadcrumb.Item>Home</Breadcrumb.Item>
-                    <Breadcrumb.Item>User</Breadcrumb.Item>
-                </Breadcrumb>
-                <div
-                    style={{
-                        padding: 24,
-                        minHeight: 360,
-                        // background: colorBgContainer,
-                    }}
-                >
-                    <>
-                        <Button type="primary" onClick={showModal}>
-                            Open Modal
-                        </Button>
-                        <Modal title="Basic Modal" open={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                            {/* modal */}
-                            <Form form={form} name="validateOnly" layout="vertical" autoComplete="off" onSubmit={addUser}>
-                                <Form.Item
-                                    name="cname"
-                                    label="Customer name"
-                                    rules={[
-                                        {
-                                            required: true,
-                                        },
-                                    ]}
-                                >
-                                    <Input />
-                                </Form.Item>
-                                <Form.Item
-                                    name="email"
-                                    label="Email"
-                                    rules={[
-                                        {
-                                            required: true,
-                                        },
-                                    ]}
-                                >
-                                    <Input />
-                                </Form.Item>
-                                <Form.Item
-                                    name="total"
-                                    label="Total"
-                                    rules={[
-                                        {
-                                            required: true,
-                                        },
-                                    ]}
-                                >
-                                    <Input />
-                                </Form.Item>
-                                <Form.Item
-                                    name="address"
-                                    label="Address"
-                                    rules={[
-                                        {
-                                            required: true,
-                                        },
-                                    ]}
-                                >
-                                    <Input />
-                                </Form.Item>
-                                <Form.Item>
-                                    <Space>
-                                        <SubmitButton form={form} />
-                                        {/* <Button htmlType="submit" >Submit</Button> */}
-                                        <Button htmlType="reset">Reset</Button>
-                                    </Space>
-                                </Form.Item>
-                               
-                            </Form>
-
-                        </Modal>
-                    </>
-                    <Table dataSource={dataTable}>
-
-                        <Column title="Customer Name" dataIndex="cname" key="cname" sorter={{
-                            compare: (a, b) => a.cname > b.cname
-                        }} />
-                        <Column title="Email" dataIndex="email" key="key" />
-
-                        <Column title="Total" dataIndex="total" key="category" />
-                        <Column title="Address" dataIndex="address" key="price" sorter={{
-                            compare: (a, b) => a.address > b.address
-                        }} />
-                        <Column
-                            title="Status"
-                            dataIndex="status"
-                            key="status"
-                            // render={(tags) => (
-                            //     <>
-                            //         {tags.map((tag) => (
-                            //             <Tag color="blue" key={status}>
-                            //                 {status}
-                            //             </Tag>
-                            //         ))}
-                            //     </>
-                            // )}
-                        />
-                        <Column
-                            title="Action"
-                            key="key"
-                            render={(_, record) => (
-                                <Space size="middle">
-                                    <a>Edit</a>
-                                    <a>Delete</a>
+                <Breadcrumb.Item>Home</Breadcrumb.Item>
+                <Breadcrumb.Item>User</Breadcrumb.Item>
+            </Breadcrumb>
+            <div
+                style={{
+                    padding: 24,
+                    minHeight: 360,
+                }}
+            >
+                <>
+                    <Button type="primary" onClick={showModal}>
+                        Open Modal
+                    </Button>
+                    <Modal title="Add user" open={isModalOpen} onOk={handleOk} onCancel={handleCancel} footer={null}>
+                        <Form form={form} name="validateOnly" layout="vertical" autoComplete="off" >
+                            <Form.Item
+                                name="name"
+                                label="Name"
+                                rules={[
+                                    {
+                                        required: true,
+                                    },
+                                ]}
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                name="username"
+                                label="Username"
+                                rules={[
+                                    {
+                                        required: true,
+                                    },
+                                ]}
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                name="email"
+                                label="Email"
+                                rules={[
+                                    {
+                                        required: true,
+                                    },
+                                ]}
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                name="address"
+                                label="Address"
+                                rules={[
+                                    {
+                                        required: true,
+                                    },
+                                ]}
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item>
+                                <Space>
+                                    <SubmitButton form={form} />
+                                    <Button htmlType="reset">Reset</Button>
                                 </Space>
-                            )}
-                        />
-                    </Table>
-                </div>
-            </Content>
+                            </Form.Item>
+
+                        </Form>
+
+                    </Modal>
+                    <Modal title="Edit user" open={isModalOpen1} onOk={handleOk1} onCancel={handleCancel1} footer={null}>
+                        <Form form={formEdit} name="validateOnly1" layout="vertical" autoComplete="off" >
+                            <Form.Item
+                                name="name"
+                                label="Name"
+                                rules={[
+                                    {
+                                        required: true,
+                                    },
+                                ]}
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                name="username"
+                                label="Username"
+                                rules={[
+                                    {
+                                        required: true,
+                                    },
+                                ]}
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                name="email"
+                                label="Email"
+                                rules={[
+                                    {
+                                        required: true,
+                                    },
+                                ]}
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item
+                                name="address"
+                                label="Address"
+                                rules={[
+                                    {
+                                        required: true,
+                                    },
+                                ]}
+                            >
+                                <Input />
+                            </Form.Item>
+                            <Form.Item>
+                                <Space>
+                                    <SaveButton form={formEdit} >Save</SaveButton>
+                                    <Button htmlType="reset">Reset</Button>
+                                </Space>
+                            </Form.Item>
+
+                        </Form>
+
+                    </Modal>
+                </>
+                <Table dataSource={usersStore.listUser}>
+
+                    <Column title="Name" dataIndex="name" key="name" sorter={{
+                        compare: (a, b) => a.name > b.name
+                    }} />
+                    <Column title="Username" dataIndex="username" key="username" />
+
+                    <Column title="Email" dataIndex="email" key="email" />
+                    <Column title="Address" dataIndex="address" key="address" sorter={{
+                        compare: (a, b) => a.address > b.address
+                    }} />
+                    <Column
+                        title="Tags"
+                        dataIndex="tags"
+                        key="tags"
+                
+                    />
+                    <Column
+                        title="Action"
+                        key="action"
+                        render={(_, record) => (
+                            <Space size="middle">
+                                <a onClick={()=>
+                                    {showModal1(record)}
+                                }
+                                >Edit</a>
+                                <Popconfirm title="Sure to delete???" onConfirm={() => { handleDelete(record) }}>
+                                    <a on>Delete</a>
+                                </Popconfirm>
+                            </Space>
+
+                        )}
+                    />
+
+                </Table>
+            </div>
+        </Content>
         // </PrimaryLayout>
     )
 }

@@ -5,7 +5,8 @@ import { Button, Modal, Form, Input } from 'antd';
 import { useState } from 'react';
 import { Space, Table } from 'antd';
 import React from 'react';
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector, useStore } from "react-redux";
+import { createGlobalStyle } from "styled-components";
 // import store from "store";
 const { Column, ColumnGroup } = Table;
 
@@ -22,6 +23,8 @@ function getItem(label, key, icon, children) {
 
 const User = () => {
     const usersStore = useSelector((state) => state.users);
+    const userSelected = useSelector((state) => state.users.selectedUser);
+  
     const dispatch = useDispatch();
     React.useEffect(() => {
         dispatch.users.fetchUsers();
@@ -119,22 +122,22 @@ const User = () => {
     //     console.log(user);
     // }
     const editUser = (user, value) => {
-      
+
         console.log("user:")
         console.log(user)
         // console.log(value)
-        const index = usersStore.listUser.findIndex((item)=>
+        const index = usersStore.listUser.findIndex((item) =>
             user.id === item.id
         );
-        console.log("index"+index);
-       
+        console.log("index" + index);
+
         const newUser = {
             id: user.id,
             name: value.name,
             username: value.username,
             email: value.email,
             address: value.address,
-          
+
         };
         // const newData = [...newDataAf,newUser];
         console.log("new user")
@@ -142,19 +145,20 @@ const User = () => {
         const newData = usersStore.listUser;
         // const editData = newData.splice(index, 1, user, newUser);
 
-        newData[index]=newUser;
-        const copy = newData.map(item=>item);
+        newData[index] = newUser;
+        const copy = newData.map(item => item);
         console.log("newdata")
         console.log(copy)
-        dispatch.user.setListUser(newData);
+        dispatch.users.setListUser(copy);
         dispatch.users.setSelectedUser({});
     }
 
     //modal
     const [isModalOpen, setIsModalOpen] = useState(false);
     const showModal = () => {
-       
+
         setIsModalOpen(true);
+       
     };
     const handleOk = () => {
         setIsModalOpen(false);
@@ -168,12 +172,23 @@ const User = () => {
 
     const [isModalOpen1, setIsModalOpen1] = useState(false);
     const showModal1 = (record) => {
+        //         formEdit.setFieldValue({
+        //             name:'',
+        //             username:'',
+        //             email:'',
+        //             address:'',
+        //             ...record,
+
+        // })
+        formEdit.setFieldValue({...record})
+        console.log(record)
         dispatch.users.setSelectedUser(record);
         setIsModalOpen1(true);
 
-        console.log(record)
-    
-   
+
+        // console.log("1",userSelected);
+
+
     };
 
     const handleOk1 = () => {
@@ -185,6 +200,7 @@ const User = () => {
     //form
     const [form] = Form.useForm();
     const [formEdit] = Form.useForm();
+    const a = { name: "ABC", username: "adlsh" }
     return (
         // <PrimaryLayout>
         <Content
@@ -267,7 +283,7 @@ const User = () => {
 
                     </Modal>
                     <Modal title="Edit user" open={isModalOpen1} onOk={handleOk1} onCancel={handleCancel1} footer={null}>
-                        <Form form={formEdit} name="validateOnly1" layout="vertical" autoComplete="off" >
+                        <Form form={formEdit} name="validateOnly1" layout="vertical" autoComplete="off"  >
                             <Form.Item
                                 name="name"
                                 label="Name"
@@ -281,7 +297,7 @@ const User = () => {
                             </Form.Item>
                             <Form.Item
                                 name="username"
-                                label="Username"
+                                label="username"
                                 rules={[
                                     {
                                         required: true,
@@ -338,15 +354,14 @@ const User = () => {
                         title="Tags"
                         dataIndex="tags"
                         key="tags"
-                
+
                     />
                     <Column
                         title="Action"
                         key="action"
                         render={(_, record) => (
                             <Space size="middle">
-                                <a onClick={()=>
-                                    {showModal1(record)}
+                                <a onClick={() => { showModal1(record) }
                                 }
                                 >Edit</a>
                                 <Popconfirm title="Sure to delete???" onConfirm={() => { handleDelete(record) }}>
@@ -359,7 +374,7 @@ const User = () => {
 
                 </Table>
             </div>
-        </Content>
+        </Content >
         // </PrimaryLayout>
     )
 }

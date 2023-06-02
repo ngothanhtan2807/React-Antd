@@ -24,7 +24,10 @@ function getItem(label, key, icon, children) {
 const User = () => {
     const usersStore = useSelector((state) => state.users);
     const userSelected = useSelector((state) => state.users.selectedUser);
-  
+
+
+    
+
     const dispatch = useDispatch();
     React.useEffect(() => {
         dispatch.users.fetchUsers();
@@ -77,7 +80,7 @@ const User = () => {
         React.useEffect(() => {
             form
                 .validateFields({
-                    validateOnly1: true,
+                    // validateOnly1: true,
                 })
                 .then(
                     () => {
@@ -158,7 +161,7 @@ const User = () => {
     const showModal = () => {
 
         setIsModalOpen(true);
-       
+
     };
     const handleOk = () => {
         setIsModalOpen(false);
@@ -169,10 +172,14 @@ const User = () => {
 
 
     //
+    const [row, setRow] = useState({});
 
     const [isModalOpen1, setIsModalOpen1] = useState(false);
-    const showModal1 = (record) => {
-        //         formEdit.setFieldValue({
+    const showModal1 =  (record) => {
+        // console.log("record",record);
+        console.log(record)
+        setRow(record)
+        //         form.setFieldValue({
         //             name:'',
         //             username:'',
         //             email:'',
@@ -180,10 +187,17 @@ const User = () => {
         //             ...record,
 
         // })
-        formEdit.setFieldValue({...record})
-        console.log(record)
+        // formEdit.setFieldValue({...record})
+        // console.log(record)
+       
+        formEdit.setFieldsValue({});
         dispatch.users.setSelectedUser(record);
+        // console.log(userSelected)
+        // //formEdit.setFieldsValue(userSelected);
+        // setTimeout((()=>{setIsModalOpen1(true)}),100)
         setIsModalOpen1(true);
+        
+
 
 
         // console.log("1",userSelected);
@@ -191,16 +205,26 @@ const User = () => {
 
     };
 
-    const handleOk1 = () => {
-        setIsModalOpen1(false);
-    };
+    // const handleOk1 = () => {
+    //     setIsModalOpen1(false);
+    // };
     const handleCancel1 = () => {
+        console.log("CANCEL");
+        // set rong
+                //  formEdit.setFieldValue({
+                //     name:'',
+                //     username:'',
+                //     email:'',
+                //     address:'',
+                //     // ...record,
+                //  })
         setIsModalOpen1(false);
     };
     //form
     const [form] = Form.useForm();
     const [formEdit] = Form.useForm();
     const a = { name: "ABC", username: "adlsh" }
+    const hasValue = formEdit.getFieldValue();
     return (
         // <PrimaryLayout>
         <Content
@@ -275,15 +299,20 @@ const User = () => {
                             <Form.Item>
                                 <Space>
                                     <SubmitButton form={form} />
-                                    <Button htmlType="reset">Reset</Button>
+                                    <Button htmlType="reset" autoFocus>Reset</Button>
                                 </Space>
                             </Form.Item>
 
                         </Form>
 
                     </Modal>
-                    <Modal title="Edit user" open={isModalOpen1} onOk={handleOk1} onCancel={handleCancel1} footer={null}>
-                        <Form form={formEdit} name="validateOnly1" layout="vertical" autoComplete="off"  >
+                    <Modal title="Edit user" open={isModalOpen1}  onCancel={()=>handleCancel1()} footer={null}>
+                        {hasValue? <Form form={formEdit} name="validateOnly1" layout="vertical" autoComplete="off" 
+                        // fields={[usersStore.selectedUser]}  
+                        
+                        initialValues={usersStore.selectedUser}
+                        >
+                        
                             <Form.Item
                                 name="name"
                                 label="Name"
@@ -335,7 +364,7 @@ const User = () => {
                                 </Space>
                             </Form.Item>
 
-                        </Form>
+                        </Form>: <div>Loading</div>}
 
                     </Modal>
                 </>
@@ -361,7 +390,7 @@ const User = () => {
                         key="action"
                         render={(_, record) => (
                             <Space size="middle">
-                                <a onClick={() => { showModal1(record) }
+                                <a onClick={() =>  showModal1(record) 
                                 }
                                 >Edit</a>
                                 <Popconfirm title="Sure to delete???" onConfirm={() => { handleDelete(record) }}>

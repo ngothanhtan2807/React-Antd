@@ -6,19 +6,12 @@ import { useState } from 'react';
 import { Space, Table } from 'antd';
 import React from 'react';
 import { useDispatch, useSelector, useStore } from "react-redux";
-import { createGlobalStyle } from "styled-components";
+import { NavLink } from "react-router-dom";
 // import store from "store";
-const { Column, ColumnGroup } = Table;
+const { Column } = Table;
 
-const { Content, Footer, Sider } = Layout;
-function getItem(label, key, icon, children) {
-    return {
-        key,
-        icon,
-        children,
-        label,
-    };
-}
+const { Content } = Layout;
+
 
 
 const User = () => {
@@ -26,7 +19,7 @@ const User = () => {
     const userSelected = useSelector((state) => state.users.selectedUser);
 
 
-    
+
 
     const dispatch = useDispatch();
     React.useEffect(() => {
@@ -70,11 +63,8 @@ const User = () => {
 
         const values = Form.useWatch([], form);
         const handleEdit = () => {
-
-            // const values = Form.useWatch([], formEdit);
-            // const user = usersStore.selectedUser;
+            console.log(values);
             editUser(usersStore.selectedUser, values)
-            // console.log(user);
         }
 
         React.useEffect(() => {
@@ -118,12 +108,7 @@ const User = () => {
         const newData = usersStore.listUser.filter((item) => item.id !== record.id);
         dispatch.users.setListUser(newData);
     }
-    // const handleEdit=(record)=>{
-    //     // const values = Form.useWatch([], formEdit);
-    //     const user = usersStore.listUser.find((item)=>item.id === record.id);
-    //     editUser(user, values)
-    //     console.log(user);
-    // }
+
     const editUser = (user, value) => {
 
         console.log("user:")
@@ -142,11 +127,9 @@ const User = () => {
             address: value.address,
 
         };
-        // const newData = [...newDataAf,newUser];
         console.log("new user")
         console.log(newUser)
         const newData = usersStore.listUser;
-        // const editData = newData.splice(index, 1, user, newUser);
 
         newData[index] = newUser;
         const copy = newData.map(item => item);
@@ -154,6 +137,8 @@ const User = () => {
         console.log(copy)
         dispatch.users.setListUser(copy);
         dispatch.users.setSelectedUser({});
+     
+        setIsModalOpen1(false);
     }
 
     //modal
@@ -175,33 +160,11 @@ const User = () => {
     const [row, setRow] = useState({});
 
     const [isModalOpen1, setIsModalOpen1] = useState(false);
-    const showModal1 =  (record) => {
-        // console.log("record",record);
-        console.log(record)
-        setRow(record)
-        //         form.setFieldValue({
-        //             name:'',
-        //             username:'',
-        //             email:'',
-        //             address:'',
-        //             ...record,
+    const showModal1 = (record) => {
+    
+        formEdit.setFieldsValue({ ...record })
 
-        // })
-        // formEdit.setFieldValue({...record})
-        // console.log(record)
-       
-        formEdit.setFieldsValue({});
-        dispatch.users.setSelectedUser(record);
-        // console.log(userSelected)
-        // //formEdit.setFieldsValue(userSelected);
-        // setTimeout((()=>{setIsModalOpen1(true)}),100)
         setIsModalOpen1(true);
-        
-
-
-
-        // console.log("1",userSelected);
-
 
     };
 
@@ -210,23 +173,17 @@ const User = () => {
     // };
     const handleCancel1 = () => {
         console.log("CANCEL");
-        // set rong
-                //  formEdit.setFieldValue({
-                //     name:'',
-                //     username:'',
-                //     email:'',
-                //     address:'',
-                //     // ...record,
-                //  })
         setIsModalOpen1(false);
+
     };
     //form
     const [form] = Form.useForm();
     const [formEdit] = Form.useForm();
     const a = { name: "ABC", username: "adlsh" }
     const hasValue = formEdit.getFieldValue();
+    console.log(hasValue)
     return (
-        // <PrimaryLayout>
+    
         <Content
             style={{
                 margin: '0 16px',
@@ -237,8 +194,8 @@ const User = () => {
                     margin: '16px 0',
                 }}
             >
-                <Breadcrumb.Item>Home</Breadcrumb.Item>
-                <Breadcrumb.Item>User</Breadcrumb.Item>
+                <Breadcrumb.Item><NavLink to ="/" >Home</NavLink></Breadcrumb.Item>
+                <Breadcrumb.Item><NavLink to ="/user" >User</NavLink></Breadcrumb.Item>
             </Breadcrumb>
             <div
                 style={{
@@ -306,13 +263,10 @@ const User = () => {
                         </Form>
 
                     </Modal>
-                    <Modal title="Edit user" open={isModalOpen1}  onCancel={()=>handleCancel1()} footer={null}>
-                        {hasValue? <Form form={formEdit} name="validateOnly1" layout="vertical" autoComplete="off" 
-                        // fields={[usersStore.selectedUser]}  
-                        
-                        initialValues={usersStore.selectedUser}
+                    <Modal title="Edit user" open={isModalOpen1} onCancel={() => handleCancel1()} footer={null}>
+                        {hasValue ? <Form form={formEdit} name="validateOnly1" layout="vertical" autoComplete="off"
                         >
-                        
+
                             <Form.Item
                                 name="name"
                                 label="Name"
@@ -347,6 +301,7 @@ const User = () => {
                                 <Input />
                             </Form.Item>
                             <Form.Item
+                            
                                 name="address"
                                 label="Address"
                                 rules={[
@@ -364,7 +319,7 @@ const User = () => {
                                 </Space>
                             </Form.Item>
 
-                        </Form>: <div>Loading</div>}
+                        </Form> : <div>Loading</div>}
 
                     </Modal>
                 </>
@@ -390,7 +345,11 @@ const User = () => {
                         key="action"
                         render={(_, record) => (
                             <Space size="middle">
-                                <a onClick={() =>  showModal1(record) 
+
+                                <a onClick={() => {
+                                    dispatch.users.setSelectedUser(record);
+                                    console.log(usersStore.selectedUser); showModal1(record)
+                                }
                                 }
                                 >Edit</a>
                                 <Popconfirm title="Sure to delete???" onConfirm={() => { handleDelete(record) }}>
